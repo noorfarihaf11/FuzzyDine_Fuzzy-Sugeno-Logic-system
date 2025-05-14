@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Recommendation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <span class="icon">🍽️</span>
+                <span class="title">FuzzyDine</span>
+            </div>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/recommendation" class="active">Recommendation</a>
+                <a href="/about">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="recommendation-page">
+        <div class="container">
+            <div class="page-header">
+                <a href="/" class="back-button">← Back</a>
+                <h1>Restaurant Recommendation</h1>
+            </div>
+            
+            <div class="recommendation-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Input Parameters</h2>
+                        <p>Adjust the parameters to get restaurant recommendations</p>
+                    </div>
+                    <div class="card-content">
+                        <form id="recommendationForm" action="/recommendation" method="post">
+                            <div class="form-group">
+                                <div class="form-header">
+                                    <label for="price">Price (Rp)</label>
+                                    <span id="priceValue">{{ price|default(100000, true) }}</span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    id="price" 
+                                    name="price" 
+                                    min="10000" 
+                                    max="200000" 
+                                    step="5000" 
+                                    value="{{ price|default(100000, true) }}"
+                                    oninput="document.getElementById('priceValue').textContent = this.value"
+                                >
+                                <div class="range-labels">
+                                    <span>Rp 10.000</span>
+                                    <span>Rp 200.000</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="form-header">
+                                    <label for="rating">Rating</label>
+                                    <span id="ratingValue">{{ rating|default(3, true) }} / 5</span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    id="rating" 
+                                    name="rating" 
+                                    min="1" 
+                                    max="5" 
+                                    step="0.1" 
+                                    value="{{ rating|default(3, true) }}"
+                                    oninput="document.getElementById('ratingValue').textContent = this.value + ' / 5'"
+                                >
+                                <div class="range-labels">
+                                    <span>1</span>
+                                    <span>5</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <div class="form-header">
+                                    <label for="distance">Distance (km)</label>
+                                    <span id="distanceValue">{{ distance|default(5, true) }} km</span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    id="distance" 
+                                    name="distance" 
+                                    min="0" 
+                                    max="10" 
+                                    step="0.1" 
+                                    value="{{ distance|default(5, true) }}"
+                                    oninput="document.getElementById('distanceValue').textContent = this.value + ' km'"
+                                >
+                                <div class="range-labels">
+                                    <span>0 km</span>
+                                    <span>10 km</span>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn primary full-width">Get Recommendation</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="recommendation-results">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Membership Functions</h2>
+                            <p>Visualization of fuzzy membership functions</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <h3>Price Membership Function</h3>
+                                <canvas id="priceChart"></canvas>
+                                {% if price_memberships is defined %}
+                                <div class="membership-values">
+                                    <p>Cheap: {{ "%.2f"|format(price_memberships.cheap) }}</p>
+                                    <p>Medium: {{ "%.2f"|format(price_memberships.medium) }}</p>
+                                    <p>Expensive: {{ "%.2f"|format(price_memberships.expensive) }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="chart-container">
+                                <h3>Rating Membership Function</h3>
+                                <canvas id="ratingChart"></canvas>
+                                {% if rating_memberships is defined %}
+                                <div class="membership-values">
+                                    <p>Low: {{ "%.2f"|format(rating_memberships.low) }}</p>
+                                    <p>Medium: {{ "%.2f"|format(rating_memberships.medium) }}</p>
+                                    <p>High: {{ "%.2f"|format(rating_memberships.high) }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="chart-container">
+                                <h3>Distance Membership Function</h3>
+                                <canvas id="distanceChart"></canvas>
+                                {% if distance_memberships is defined %}
+                                <div class="membership-values">
+                                    <p>Near: {{ "%.2f"|format(distance_memberships.near) }}</p>
+                                    <p>Medium: {{ "%.2f"|format(distance_memberships.medium) }}</p>
+                                    <p>Far: {{ "%.2f"|format(distance_memberships.far) }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if result is defined %}
+                    <div class="card result-card">
+                        <div class="card-header">
+                            <h2>Recommendation Result</h2>
+                            <p>Based on Fuzzy Sugeno Logic calculation</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="result-score">
+                                <div class="score-header">
+                                    <span>Final Score:</span>
+                                    <span class="score-value">{{ "%.1f"|format(result.score) }}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: {{ result.score }}%;"></div>
+                                </div>
+                                <div class="progress-labels">
+                                    <span>0</span>
+                                    <span>20</span>
+                                    <span>40</span>
+                                    <span>60</span>
+                                    <span>80</span>
+                                    <span>100</span>
+                                </div>
+                            </div>
+                            
+                            <div class="result-category">
+                                <span>Recommendation Category:</span>
+                                <span class="category-badge {{ result.category|lower|replace(' ', '-') }}">
+                                    {{ result.category }}
+                                </span>
+                            </div>
+                            
+                            <div class="result-rules">
+                                <span>Applied Rules:</span>
+                                <div class="rules-list">
+                                    {% for rule in result.rules %}
+                                    <div class="rule-item">
+                                        <div class="rule-header">Rule {{ loop.index }}</div>
+                                        <div class="rule-description">{{ rule.rule }}</div>
+                                        <div class="rule-details">
+                                            <span>Weight: {{ "%.2f"|format(rule.weight) }}</span>
+                                            <span>Output: {{ rule.output }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 FuzzyDine. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/about">About</a>
+                <a href="/recommendation">Recommendation</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get default values from Flask or use defaults
+            var priceValue = {{ price|default(100000, true) }};
+            var ratingValue = {{ rating|default(3, true) }};
+            var distanceValue = {{ distance|default(5, true) }};
+            
+            // Price Chart
+            var priceCtx = document.getElementById('priceChart').getContext('2d');
+            var priceChart = new Chart(priceCtx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Cheap',
+                            data: [
+                                {x: 10000, y: 1},
+                                {x: 50000, y: 1},
+                                {x: 100000, y: 0},
+                                {x: 200000, y: 0}
+                            ],
+                            borderColor: '#4CAF50',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Medium',
+                            data: [
+                                {x: 10000, y: 0},
+                                {x: 50000, y: 0},
+                                {x: 100000, y: 1},
+                                {x: 150000, y: 0},
+                                {x: 200000, y: 0}
+                            ],
+                            borderColor: '#2196F3',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Expensive',
+                            data: [
+                                {x: 10000, y: 0},
+                                {x: 100000, y: 0},
+                                {x: 150000, y: 1},
+                                {x: 200000, y: 1}
+                            ],
+                            borderColor: '#F44336',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Current Value',
+                            data: [
+                                {x: priceValue, y: 0},
+                                {x: priceValue, y: 1}
+                            ],
+                            borderColor: '#000',
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            min: 10000,
+                            max: 200000,
+                            ticks: {
+                                callback: function(value) {
+                                    if (value === 10000) return '10k';
+                                    if (value === 50000) return '50k';
+                                    if (value === 100000) return '100k';
+                                    if (value === 150000) return '150k';
+                                    if (value === 200000) return '200k';
+                                    return '';
+                                }
+                            }
+                        },
+                        y: {
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // Rating Chart
+            var ratingCtx = document.getElementById('ratingChart').getContext('2d');
+            var ratingChart = new Chart(ratingCtx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Low',
+                            data: [
+                                {x: 1, y: 1},
+                                {x: 2, y: 1},
+                                {x: 3, y: 0},
+                                {x: 5, y: 0}
+                            ],
+                            borderColor: '#F44336',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Medium',
+                            data: [
+                                {x: 1, y: 0},
+                                {x: 2, y: 0},
+                                {x: 3, y: 1},
+                                {x: 4, y: 0},
+                                {x: 5, y: 0}
+                            ],
+                            borderColor: '#FF9800',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'High',
+                            data: [
+                                {x: 1, y: 0},
+                                {x: 3, y: 0},
+                                {x: 4, y: 1},
+                                {x: 5, y: 1}
+                            ],
+                            borderColor: '#4CAF50',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Current Value',
+                            data: [
+                                {x: ratingValue, y: 0},
+                                {x: ratingValue, y: 1}
+                            ],
+                            borderColor: '#000',
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            min: 1,
+                            max: 5
+                        },
+                        y: {
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+
+            // Distance Chart
+            var distanceCtx = document.getElementById('distanceChart').getContext('2d');
+            var distanceChart = new Chart(distanceCtx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Near',
+                            data: [
+                                {x: 0, y: 1},
+                                {x: 2, y: 1},
+                                {x: 5, y: 0},
+                                {x: 10, y: 0}
+                            ],
+                            borderColor: '#4CAF50',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Medium',
+                            data: [
+                                {x: 0, y: 0},
+                                {x: 2, y: 0},
+                                {x: 5, y: 1},
+                                {x: 8, y: 0},
+                                {x: 10, y: 0}
+                            ],
+                            borderColor: '#FF9800',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Far',
+                            data: [
+                                {x: 0, y: 0},
+                                {x: 5, y: 0},
+                                {x: 8, y: 1},
+                                {x: 10, y: 1}
+                            ],
+                            borderColor: '#F44336',
+                            tension: 0,
+                            fill: false
+                        },
+                        {
+                            label: 'Current Value',
+                            data: [
+                                {x: distanceValue, y: 0},
+                                {x: distanceValue, y: 1}
+                            ],
+                            borderColor: '#000',
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            min: 0,
+                            max: 10
+                        },
+                        y: {
+                            min: 0,
+                            max: 1
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Recommendation System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <span class="icon">🍽️</span>
+                <span class="title">FuzzyDine</span>
+            </div>
+            <nav>
+                <a href="/" class="active">Home</a>
+                <a href="/recommendation">Recommendation</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <h1>Restaurant Recommendation System</h1>
+                    <p>Find the perfect restaurant based on your preferences using our advanced Fuzzy Sugeno Logic system.</p>
+                    <div class="buttons">
+                        <a href="/recommendation" class="btn primary">Get Recommendations</a>
+                        <a href="/about" class="btn secondary">Learn More</a>
+                    </div>
+                </div>
+                <div class="hero-card">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>How It Works</h2>
+                            <p>Our system uses Fuzzy Sugeno Logic to recommend restaurants based on multiple criteria.</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="feature">
+                                <div class="feature-icon">💰</div>
+                                <div class="feature-text">
+                                    <h3>Price</h3>
+                                    <p>From Rp 10.000 to Rp 200.000</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">⭐</div>
+                                <div class="feature-text">
+                                    <h3>Rating</h3>
+                                    <p>Customer ratings from 1 to 5 stars</p>
+                                </div>
+                            </div>
+                            <div class="feature">
+                                <div class="feature-icon">📍</div>
+                                <div class="feature-text">
+                                    <h3>Distance</h3>
+                                    <p>From 0 to 10 kilometers</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="/recommendation" class="btn primary full-width">Try It Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="container">
+            
+            <div class="about-grid">
+                <div class="about-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Project Overview</h2>
+                            <p>Restaurant Recommendation System Based on Fuzzy Sugeno Logic</p>
+                        </div>
+                        <div class="card-content">
+                            <p>
+                                This project implements a restaurant recommendation system using Fuzzy Sugeno Logic. 
+                                The system evaluates restaurants based on multiple criteria and provides personalized 
+                                recommendations to users.
+                            </p>
+                            <p>
+                                Fuzzy logic is particularly useful for this application as it can handle imprecise 
+                                information and linguistic variables, making it ideal for modeling human preferences 
+                                and decision-making processes.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Fuzzy Sugeno Method</h2>
+                            <p>Understanding the inference process</p>
+                        </div>
+                        <div class="card-content">
+                            <p>
+                                The Sugeno fuzzy inference method, introduced by Michio Sugeno, is similar to the Mamdani 
+                                method in many respects. The first two parts of the fuzzy inference process, fuzzifying 
+                                the inputs and applying the fuzzy operator, are exactly the same.
+                            </p>
+                            <p>
+                                The main difference is that the Sugeno output membership functions are either linear or 
+                                constant. This makes the Sugeno method computationally efficient and works well with 
+                                optimization and adaptive techniques.
+                            </p>
+                            <p>
+                                In our system, we use a weighted average for defuzzification to calculate the final 
+                                recommendation score.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Input Variables</h2>
+                            <p>Criteria used for restaurant evaluation</p>
+                        </div>
+                        <div class="card-content">
+                            <ul class="feature-list">
+                                <li>
+                                    <h3>Price (Rp 10.000 – Rp 200.000)</h3>
+                                    <p>
+                                        Categorized as Cheap, Medium, or Expensive based on the price range of menu items.
+                                    </p>
+                                </li>
+                                <li>
+                                    <h3>Rating (1–5 stars)</h3>
+                                    <p>
+                                        Categorized as Low, Medium, or High based on customer reviews and ratings.
+                                    </p>
+                                </li>
+                                <li>
+                                    <h3>Distance (0–10 km)</h3>
+                                    <p>
+                                        Categorized as Near, Medium, or Far based on the distance from the user's location.
+                                    </p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Output Variable</h2>
+                            <p>Recommendation levels based on Sugeno method</p>
+                        </div>
+                        <div class="card-content">
+                            <ul class="output-list">
+                                <li>
+                                    <span>Not Recommended</span>
+                                    <span class="output-score">Score: 0-20</span>
+                                </li>
+                                <li>
+                                    <span>Less Recommended</span>
+                                    <span class="output-score">Score: 20-40</span>
+                                </li>
+                                <li>
+                                    <span>Moderately Recommended</span>
+                                    <span class="output-score">Score: 40-60</span>
+                                </li>
+                                <li>
+                                    <span>Recommended</span>
+                                    <span class="output-score">Score: 60-80</span>
+                                </li>
+                                <li>
+                                    <span>Highly Recommended</span>
+                                    <span class="output-score">Score: 80-100</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Implementation</h2>
+                            <p>Technical details of the system</p>
+                        </div>
+                        <div class="card-content">
+                            <p>This web application is built using:</p>
+                            <ul class="tech-list">
+                                <li>Python with Flask for the backend</li>
+                                <li>HTML and CSS for the user interface</li>
+                                <li>scikit-fuzzy for implementing the Fuzzy Sugeno Logic</li>
+                                <li>Chart.js for visualizing membership functions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </main>
+    <footer>
+        <div class="container">
+            <p>© 2025 FuzzyDine. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="/recommendation">Recommendation</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
