@@ -1,3 +1,10 @@
+click==8.2.1
 Flask==2.0.1
-numpy==1.21.0
-scikit-fuzzy
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.2
+numpy==2.0.0
+packaging==25.0
+scikit-fuzzy==0.5.0
+scipy==1.15.3
+Werkzeug==2.2.2
